@@ -1,61 +1,40 @@
-<!DOCTYPE html>
-<html>
+from flask import Flask, request, jsonify
+from datetime import datetime
 
-<head>
-    <title>Typing Behavior Analyzer</title>
-    <style>
-        #inputArea {
-            width: 100%;
-            height: 100px;
-            font-size: 16px;
-        }
-    </style>
-</head>
+app = Flask(__name__)
 
-<body>
-    <h1>Typing Behavior Analyzer</h1>
-    <p>Start typing in the text area below:</p>
-    <textarea id="inputArea" placeholder="Start typing..."></textarea>
-    <button onclick="sendData()">Analyze</button>
 
-    <script>
-        let typingData = [];
+def analyze_typing_data(typing_data):
+    intervals = []
+    keypress_intervals = {}
 
-        document.getElementById('inputArea').addEventListener('keydown', (event) => {
-            let timestamp = new Date().getTime();
-            typingData.push({
-                key: event.key,
-                timestamp: timestamp,
-                eventType: 'keydown'
-            });
-        });
+    for i in range(1, len(typing_data)):
+        if typing_data[i]['eventType'] == 'keydown' and typing_data[i-1]['eventType'] == 'keyup':
+            interval = typing_data[i]['timestamp'] - \
+                typing_data[i-1]['timestamp']
+            intervals.append(interval)
 
-        document.getElementById('inputArea').addEventListener('keyup', (event) => {
-            let timestamp = new Date().getTime();
-            typingData.push({
-                key: event.key,
-                timestamp: timestamp,
-                eventType: 'keyup'
-            });
-        });
+            key = typing_data[i-1]['key']
+            if key not in keypress_intervals:
+                keypress_intervals[key] = []
+            keypress_intervals[key].append(interval)
 
-        function sendData() {
-            fetch('/analyze', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ typingData: typingData })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    alert('Behavioral signature generated:\n' + JSON.stringify(data));
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-        }
-    </script>
-</body>
+    avg_interval = sum(intervals) / len(intervals) if intervals else 0
+    keypress_avg_intervals = {k: sum(v) / len(v)
+                              for k, v in keypress_intervals.items()}
 
-</html>
+    return {
+        'average_interval': avg_interval,
+        'keypress_intervals': keypress_avg_intervals
+    }
+
+
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    typing_data = request.json['typingData']
+    behavioral_signature = analyze_typing_data(typing_data)
+    return jsonify(behavioral_signature)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
