@@ -1,5 +1,4 @@
-from flask import Flask, request, jsonify
-from datetime import datetime
+from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -29,6 +28,11 @@ def analyze_typing_data(typing_data):
     }
 
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
     typing_data = request.json['typingData']
@@ -37,4 +41,4 @@ def analyze():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
