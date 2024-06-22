@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Typing Behavior Analyzer</title>
+    <title>KEYSTROKE</title>
     <style>
         #inputArea {
             width: 100%;
@@ -13,8 +13,12 @@
 </head>
 
 <body>
-    <h1>Typing Behavior Analyzer</h1>
-    <p>Start typing in the text area below:</p>
+    <h1>KeySTROKE - Typing Behavior Analyzer</h1>
+    <p>Start typing the following in the text area below:</p>
+    <p>Cosmos hides her secrets in whispers Communicating bits on wings
+        of faeries Dusted flowers to aid in the subterfuge Lilacs enjoy
+        starlight, allowing no one to have a complete paragraph or even
+        a sentence Until they agree to collaborate in universal agreement.</p>
     <textarea id="inputArea" placeholder="Start typing..."></textarea>
     <button onclick="sendData()">Analyze</button>
 
@@ -49,7 +53,7 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    alert('Behavioral signature generated:\n' + JSON.stringify(data));
+                    alert('Behavioral signature generated:\n' + JSON.stringify(data, null, 2));
                 })
                 .catch((error) => {
                     console.error('Error:', error);
